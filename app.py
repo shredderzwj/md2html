@@ -81,7 +81,3 @@ path: 需要查看的路径。
             app.run()
     except IndexError:
         print(help_str, '\n')
-
-
-
-
