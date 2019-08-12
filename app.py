@@ -33,7 +33,7 @@ class Tree(object):
                 file = str(top.absolute()).replace(self.root_path_str, '.')
                 # title = top.absolute().parent.name + top.name
                 title = top.name
-                self.tree_str += '|&nbsp;&nbsp;&nbsp;&nbsp;' * (tabs - 1) + "|---<a href=/%s?f=%s&&t=%s target=_blank>" % (self.api, file, title) + title + '</a></b><br>'
+                self.tree_str += '|&nbsp;&nbsp;&nbsp;&nbsp;' * (tabs - 1) + "|---<a href=/%s?f=%s&t=%s target=_blank>" % (self.api, file, title) + title + '</a></b><br>'
         return self.tree_str
 
 
