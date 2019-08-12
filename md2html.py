@@ -116,6 +116,11 @@ class Head(object):
 
 			code {
 				font-family: 'ubuntu-mono';
+				color: #00aa00;
+				background-color: #000000;
+				word-wrap:break-word;
+				word-break:break-all;
+				overflow: hidden;
 			}
 
 			p code, ol code, ul code {
@@ -123,7 +128,7 @@ class Head(object):
 				padding-bottom: 2px;
 				padding-left: 4px;
 				padding-right: 4px;
-				background-color: #FAFAFA;
+				background-color: #000000;
 				box-shadow: 0px 0px 4px #D0D0D0 inset;
 				border-radius: 4px;
 			}
@@ -132,6 +137,7 @@ class Head(object):
 				padding: 0px;
 				box-shadow: 0px 0px 0px #D0D0D0;
 				border-radius: 4px;
+				// background-color: #000000;
 			}
 
 			pre {
@@ -140,7 +146,7 @@ class Head(object):
 				margin-left: 30px;
 				margin-right: 30px;
 				padding: 10px;
-				background-color: #FAFAFA;
+				background-color: #000000;
 				box-shadow: 0px 0px 4px #D0D0D0 inset;
 				border-radius: 4px;
 				line-height: 130%;
