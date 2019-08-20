@@ -224,7 +224,7 @@ class Head(object):
 				margin-top: 0px;
 				margin-bottom: 64px;
 				padding: 50px;
-				background-color: #FFFFFE;
+				background-color: #FFFFFF;
 				/*  border-radius    : 1px;
 				box-shadow       : 0px 0px 16px #808080; */
 				word-wrap: break-word;
@@ -388,31 +388,6 @@ class Head(object):
 
 	js = """
 	<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-	<script type="text/x-mathjax-config">
-		MathJax.Hub.Config({
-			showProcessingMessages: false,
-			//关闭js加载过程信息
-			messageStyle: "none",
-			//不显示信息
-			extensions: ["tex2jax.js"],
-			jax: ["input/TeX", "output/HTML-CSS"],
-			tex2jax: {
-				inlineMath: [['$', '$']],
-				//行内公式选择符
-				displayMath: [['$$', '$$']],
-				//段内公式选择符
-				skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'a'],
-				//避开某些标签
-				ignoreClass: "comment-content" //避开含该Class的标签
-			},
-			"HTML-CSS": {
-				availableFonts: ["STIX", "TeX"],
-				//可选字体
-				//showMathMenu: false //关闭右击菜单显示
-			}
-		});
-		MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
-	</script>
 	"""
 
 
