@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+# pip install markdown python-markdown-math
+
 
 import markdown as md
-
+from mdx_math import MathExtension
 
 class Head(object):
 	style = """
@@ -458,6 +460,13 @@ class MD2Html(Head):
 		输出转换后的 html 字符串
 		:return: str html 内容
 		"""
+		exts = [
+			'markdown.extensions.extra',
+			'markdown.extensions.codehilite',
+			'markdown.extensions.tables',
+			'markdown.extensions.toc',
+			MathExtension(enable_dollar_delimiter=True),
+		]
 		return """
 			<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 			<html>
@@ -466,7 +475,7 @@ class MD2Html(Head):
 			%s
 			</body>
 			</html>
-		""" % (self.head, md.markdown(self.md_str))
+		""" % (self.head, md.markdown(self.md_str, extensions=exts))
 
 	def save_html(self, file_path, encoding='utf-8'):
 		"""
