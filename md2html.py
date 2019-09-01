@@ -40,7 +40,8 @@ class Head(object):
 				margin-top: 0px;
 				margin-bottom: 64px;
 				padding: 50px;
-				background-color: #E6DBBD;
+				// background-color: #E6DBBD;
+				background-color: #FAEED7;
 				// background-image:url(data:image/jpeg;base64,base64_str);
 				// background-size:cover; 
 				border-radius: 1px;
