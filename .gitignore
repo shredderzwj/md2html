@@ -8,18 +8,19 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
+#/build/
+/develop-eggs/
+/dist/
+#downloads/
+#resource/
+/eggs/
+/:wq.eggs/
+#/lib/
+#/lib64/
+/parts/
+/sdist/
+/var/
+/wheels/
 *.egg-info/
 .installed.cfg
 *.egg
@@ -106,4 +107,6 @@ venv.bak/
 # pycharm config file
 .idea
 
-.vscode
+# some static file
+static/spider/
+*.sqlite3

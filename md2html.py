@@ -1,464 +1,181 @@
 # -*- coding: utf-8 -*-
 # pip install markdown python-markdown-math
-
+# pip install pygments
+import os
+import re
+import base64
+import cgi
 
 import markdown as md
 from mdx_math import MathExtension
 
+RESOURCE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'resource')
+STYLE_FILE = os.path.join(RESOURCE_DIR, 'style.black.css')
+CODE_MAP = {
+    'py': 'python', 'java': 'java', 'cpp': 'c++', 'c': 'c',
+    'htm': 'html', 'html': 'html', 'js': 'javascript',
+    'css': 'stylesheet', 'f90': 'fortran', 'f': 'fortran',
+}
+
+
 class Head(object):
-	style = """
-	<style type="text/css">
-		pan.MathJax_SVG {
-			zoom: 1.2;
-		}
+    css_file = STYLE_FILE
+    with open(css_file, 'r', encoding='utf-8') as f:
+        css = f.read()
+    css_content = ' '.join([x.strip() for x in css.split('\n')])
+    style = '<style type="text/css">%s</style>' % css_content
 
-		@font-face {
-			font-family: 'wdsong';
-			// src: url('./font/wd-song.ttf');
-			font-weight: lighter;
-		}
+    js_file = os.path.join(RESOURCE_DIR, 'jqPrint.js')
+    with open(js_file, 'r', encoding='utf-8') as f:
+        js_content = f.read()
+    # js_content = ' '.join([x.strip() for x in js_content.split('\n')])
+    js = """
+    <script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>
+    <script src="https://libs.baidu.com/jquery/1.3.1/jquery.min.js"></script>
+    <script>
+    %s
+    </script>
+    """ % js_content
 
-		@font-face {
-			font-family: 'ubuntu-mono';
-			// src: url('./font/ubuntu-mono.ttf');
-			font-weight: lighter;
-		}
-
-		@media screen {
-			html {
-				background-repeat: repeat-x repeat-y;
-				background-color: #000000;
-				padding: 16px;
-			}
-
-			body {
-				background-repeat: repeat-x repeat-y;
-				width: auto;
-				max-width: 800px;
-				min-width: 640px;
-				margin: auto;
-				margin-top: 0px;
-				margin-bottom: 64px;
-				padding: 50px;
-				// background-color: #E6DBBD;
-				background-color: #FAEED7;
-				// background-image:url(data:image/jpeg;base64,base64_str);
-				// background-size:cover; 
-				border-radius: 1px;
-				box-shadow: 0px 0px 16px #808080;
-				word-wrap: break-word;
-				line-height: 150%;
-				font-family: 'wdsong';
-				color: #101010;
-			}
-
-			h1 {
-				margin-top: 64px;
-				margin-bottom: 48px;
-				padding-bottom: 16px;
-				text-align: center;
-				font-weight: 900;
-				font-size: xx-large;
-			}
-
-			h2 {
-				background-repeat: repeat-x repeat-y;
-				margin-top: 32px;
-				margin-left: -50px;
-				margin-right: -50px;
-				padding-left: 50px;
-				padding-top: 32px;
-				padding-bottom: 16px;
-				// border-top: dotted thin #CCCCCC;
-				font-weight: bold;
-				font-size: x-large;
-			}
-
-			h3 {
-				margin-top: 24px;
-				margin-bottom: 24px;
-				padding-bottom: 6px;
-				// color: #004499;
-				// border-bottom: dotted thin #000000;
-				line-height: 100%;
-				font-weight: bold;
-				font-size: large;
-			}
-
-			h4 {
-				background-repeat: no-repeat;
-				height: 24px;
-				margin-bottom: 24px;
-				padding-top: 6px;
-				/* padding-left      : 48px; */
-				line-height: 100%;
-				font-weight: bold;
-			}
-
-			p {
-				text-indent: 32px;
-			}
-
-			ol p, ul p {
-				text-indent: 1px;
-			}
-
-			ol, ul {
-				padding-left: 64px;
-				padding-right: 48px;
-			}
-
-			b {
-				margin: 4px;
-				color: #004499;
-			}
-
-			a {
-				color: #0070D0;
-			}
-
-			code {
-				font-family: 'ubuntu-mono';
-				color: #00aa00;
-				background-color: #000000;
-				word-wrap:break-word;
-				word-break:break-all;
-				overflow: hidden;
-			}
-
-			p code, ol code, ul code {
-				padding-top: -1px;
-				padding-bottom: 2px;
-				padding-left: 4px;
-				padding-right: 4px;
-				background-color: #000000;
-				box-shadow: 0px 0px 4px #D0D0D0 inset;
-				border-radius: 4px;
-			}
-
-			pre code {
-				padding: 0px;
-				box-shadow: 0px 0px 0px #D0D0D0;
-				border-radius: 4px;
-				// background-color: #000000;
-			}
-
-			pre {
-				background-repeat: no-repeat;
-				margin: 10px;
-				margin-left: 30px;
-				margin-right: 30px;
-				padding: 10px;
-				background-color: #000000;
-				box-shadow: 0px 0px 4px #D0D0D0 inset;
-				border-radius: 4px;
-				line-height: 130%;
-			}
-
-			blockquote {
-				background-repeat: no-repeat;
-				margin: 10px;
-				padding: 10px;
-				margin-left: 20px;
-				margin-right: 20px;
-				background-color: #FCFCFC;
-				color: #606060;
-				box-shadow: 0px 0px 16px #888888;
-				border-radius: 2px;
-				line-height: 130%;
-				font-size: small;
-			}
-
-			table {
-				margin-bottom: 10px;
-				margin-left: 32px;
-				margin-right: 32px;
-				box-shadow: 0px 0px 4px #888888;
-				border-collapse: collapse;
-				border: 1px solid #888888;
-				text-align: center;
-				font-size: x-small;
-				width: 90%;
-			}
-
-			th {
-				padding: 2px;
-				padding-left: 4px;
-				padding-right: 4px;
-				background-color: #E0E0E0;
-				font-family: 黑体;
-				font-style: normal;
-				font-weight: bold;
-				font-size: x-small;
-				border: 1px solid #888888;
-			}
-
-			td {
-				padding: 2px;
-				padding-left: 4px;
-				padding-right: 4px;
-				background-color: #FCFCFC;
-				font-family: 'wdsong';
-				/* border           : 1px dotted #888888; */
-				border: 1px solid #888888;
-			}
-
-			center {
-				font-size: x-small;
-				font-weight: bold;
-			}
-		}
-
-		@media print {
-			html {
-				background-repeat: repeat-x repeat-y;
-				background-color: #ECECEC;
-				padding: 16px;
-			}
-
-			body {
-				background-repeat: repeat-x;
-				width: auto;
-				max-width: 800px;
-				min-width: 640px;
-				margin: auto;
-				margin-top: 0px;
-				margin-bottom: 64px;
-				padding: 50px;
-				background-color: #FFFFFF;
-				/*  border-radius    : 1px;
-				box-shadow       : 0px 0px 16px #808080; */
-				word-wrap: break-word;
-				line-height: 150%;
-				font-family: 'wdsong';
-				color: #101010;
-			}
-
-			h1 {
-				margin-top: 64px;
-				margin-bottom: 48px;
-				padding-bottom: 16px;
-				text-align: center;
-				font-weight: 900;
-				font-size: xx-large;
-			}
-
-			h2 {
-				background-repeat: repeat-x repeat-y;
-				margin-top: 32px;
-				margin-left: -50px;
-				margin-right: -50px;
-				padding-left: 50px;
-				padding-top: 32px;
-				padding-bottom: 16px;
-				// border-top: dotted thin #CCCCCC;
-				font-weight: bold;
-				font-size: x-large;
-			}
-
-			h3 {
-				margin-top: 24px;
-				margin-bottom: 24px;
-				padding-bottom: 6px;
-				// color: #004499;
-				// border-bottom: dotted thin #000000;
-				line-height: 100%;
-				font-weight: bold;
-				font-size: large;
-			}
-
-			h4 {
-				background-repeat: no-repeat;
-				height: 24px;
-				margin-bottom: 24px;
-				padding-top: 6px;
-				/* padding-left      : 48px; */
-				line-height: 100%;
-				font-weight: bold;
-			}
-
-			p {
-				text-indent: 32px;
-			}
-
-			ol p, ul p {
-				text-indent: 1px;
-			}
-
-			ol, ul {
-				padding-left: 64px;
-				padding-right: 48px;
-			}
-
-			b {
-				margin: 4px;
-				color: #004499;
-			}
-
-			a {
-				color: #0070D0;
-			}
-
-			code {
-				font-family: 'ubuntu-mono';
-			}
-
-			p code, ol code, ul code {
-				padding-top: -1px;
-				padding-bottom: 2px;
-				padding-left: 4px;
-				padding-right: 4px;
-				background-color: #FAFAFA;
-				box-shadow: 0px 0px 4px #D0D0D0 inset;
-				border-radius: 4px;
-			}
-
-			pre code {
-				padding: 0px;
-				box-shadow: 0px 0px 0px #D0D0D0;
-				border-radius: 4px;
-			}
-
-			pre {
-				background-repeat: no-repeat;
-				margin: 10px;
-				margin-left: 30px;
-				margin-right: 30px;
-				padding: 10px;
-				background-color: #FAFAFA;
-				box-shadow: 0px 0px 4px #D0D0D0 inset;
-				border-radius: 4px;
-				line-height: 130%;
-			}
-
-			blockquote {
-				background-repeat: no-repeat;
-				margin: 10px;
-				padding: 10px;
-				margin-left: 20px;
-				margin-right: 20px;
-				background-color: #FCFCFC;
-				color: #606060;
-				box-shadow: 0px 0px 16px #888888;
-				border-radius: 2px;
-				line-height: 130%;
-				font-size: small;
-			}
-
-			table {
-				margin-bottom: 10px;
-				margin-left: 32px;
-				margin-right: 32px;
-				box-shadow: 0px 0px 4px #888888;
-				border-collapse: collapse;
-				border: 1px solid #888888;
-				text-align: center;
-				font-size: x-small;
-				width: 90%;
-			}
-
-			th {
-				padding: 2px;
-				padding-left: 4px;
-				padding-right: 4px;
-				background-color: #E0E0E0;
-				font-family: 黑体;
-				font-style: normal;
-				font-weight: bold;
-				font-size: x-small;
-				border: 1px solid #888888;
-			}
-
-			td {
-				padding: 2px;
-				padding-left: 4px;
-				padding-right: 4px;
-				background-color: #FCFCFC;
-				font-family: 'wdsong';
-				/* border           : 1px dotted #888888; */
-				border: 1px solid #888888;
-			}
-
-			center {
-				font-size: x-small;
-				font-weight: bold;
-			}
-		}
-	</style>
-	"""
-
-	js = """
-	<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-	"""
+    head = '''
+        <head>
+        <title>{title}</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        %s
+        </head>
+    ''' % (style + js)
 
 
 class MD2Html(Head):
-	def __init__(self, md=None, title="md2html", from_str=False, encoding='utf-8'):
-		"""
+    def __init__(
+            self, md=None, title="md2html", from_str=False,
+            encoding='utf-8', code: str = None, code_map: dict = None):
+        """
+        :param md: str markdown 文件路径或者 markdown 内容。默认为文件路径，
+                    当from_str = True 时 md 代表内容
+        :param title: str 输出 html 的标题
+        :param from_str: str 输入字符是否为 markdown 内容
+        :param encoding: str md文件的编码方式
+        :param code: str markdown 代码所用的语言，如：java python等
+        :param code_map: dict 代码文件的扩展名与代码语言的对照表
+        """
+        if code_map is None:
+            code_map = CODE_MAP
+        self.title = title
+        self.head = self.head.format(title=title)
+        self.md_file_path = ''
+        if from_str:
+            self.md_str = md
+        else:
+            if not os.path.exists(md):
+                raise FileExistsError('文件不存在！')
+            self.md_file_path = os.path.abspath(md)
+            try:
+                self.md_str = self.from_file(md, encoding)
+            except UnicodeDecodeError:
+                try:
+                    self.md_str = self.from_file(md, encoding='gbk')
+                except UnicodeDecodeError:
+                    self.md_str = 'Error 此文件不是文本文件！'
 
-		:param md: str markdown 文件路径或者 markdown 内容。默认为文件路径，当from_str = True 时 md 代表内容
-		:param title: str 输出 html 的标题
-		:param from_str: str 输入字符是否为 markdown 内容
-		:param encoding: str md文件的编码方式
-		"""
-		self.title = title
-		self.head = '''
-			<head>
-			<title>%s</title>
-			<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-			%s
-			</head>
-		''' % (self.title, self.style + self.js)
-		if from_str:
-			self.md_str = md
-		else:
-			self.md_str = self.from_file(md, encoding)
+            if code is None:
+                extend_name = md.split('.')[-1].strip().lower()
+                code = code_map.get(extend_name, 'md')
 
-	def from_file(self, file_path, encoding):
-		"""
-		with open(file_path, 'r', encoding=encoding, *args, **kwargs) as fp:
-			return fp.read()
-		"""
-		with open(file_path, 'r', encoding=encoding) as fp:
-			return fp.read()
+        if code and code.strip().lower() not in ['md', 'markdown']:
+            self.md_str = '```%s\n%s\n```' % (code, self.md_str)
 
-	def set_head(self, html_head_str):
-		"""
-		设置 html 文件的 <head> 内容
-		:param html_head_str:  str html 文件的 <head> 内容
-		:return:  None
-		"""
-		self.head = html_head_str
+        # 处理已知的code问题
+        self.md_str = re.sub(r'(?<=\n)\s+?(?=```)', '', self.md_str)
+        self.md_str = re.sub(r'(?<=\n)\s+?(?=~~~)', '', self.md_str)
 
-	@property
-	def html(self):
-		"""
-		输出转换后的 html 字符串
-		:return: str html 内容
-		"""
-		exts = [
-			'markdown.extensions.extra',
-			'markdown.extensions.codehilite',
-			'markdown.extensions.tables',
-			'markdown.extensions.toc',
-			MathExtension(enable_dollar_delimiter=True),
-		]
-		return """
-			<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-			<html>
-			%s
-			<body>
-			%s
-			</body>
-			</html>
-		""" % (self.head, md.markdown(self.md_str, extensions=exts))
+    @staticmethod
+    def from_file(file_path, encoding):
+        with open(file_path, 'r', encoding=encoding) as fp:
+            return fp.read()
 
-	def save_html(self, file_path, encoding='utf-8'):
-		"""
-		保存 html 文件
-		:param file_path: str html 文件
-		:return: None
-		"""
-		with open(file_path, 'w', encoding=encoding) as fp:
-			fp.write(self.html)
+    def set_head(self, html_head_str):
+        """
+        设置 html 文件的 <head> 内容
+        :param html_head_str:  str html 文件的 <head> 内容
+        :return:  None
+        """
+        self.head = html_head_str
 
+    @property
+    def html(self):
+        """
+        输出转换后的 html 字符串
+        :return: str html 内容
+        """
+        exts = [
+            'markdown.extensions.extra',
+            'markdown.extensions.codehilite',
+            'markdown.extensions.tables',
+            'markdown.extensions.toc',
+            'mdx_math',
+            MathExtension(enable_dollar_delimiter=True),
+        ]
+
+        # 转为html的字符串
+        converted = md.markdown(self.md_str, extensions=exts)
+
+        # 添加本地图片资源，采用base64编码嵌入
+        if self.md_file_path:
+            md_file_path_dir = os.path.dirname(self.md_file_path)
+            for x in re.findall(r'<\s*[iI][mM][gG].*?[sS][rR][cC]\s*=.*?>', converted):
+                split = re.search(r'(<.*?src=")(.*?)(".*?>)', x).groups()
+                if split:
+                    pre, img_src, aft = split
+                    img_src = cgi.html.unescape(img_src)
+
+                    img_path = os.path.sep.join([x for x in re.split(r'[\/]', img_src)])
+                    if not os.path.exists(img_path):
+                        img_path = os.path.join(md_file_path_dir, os.path.sep.join(
+                            [x for x in re.split(r'[\/]', img_src) if x]))
+                    if os.path.exists(img_path):
+                        # 图片格式
+                        img_format = img_path.split('.')[-1].lower()
+                        if not img_format or len(img_format) > 5:
+                            img_format = 'jpg'
+                        if img_format == 'svg':
+                            img_format = 'svg+xml'
+                        with open(img_path, 'rb') as f:
+                            img_blob = f.read()
+                            base64_src = 'data:image/{};base64,{}'
+                            base64_src = base64_src.format(img_format,
+                                                           base64.b64encode(img_blob).decode())
+
+                            converted = re.sub('(?<=%s).*(?=%s)' % (pre, aft), base64_src,
+                                               converted)
+
+        return """
+            <!DOCTYPE html>
+            <html>
+            %s
+            <body>
+                <div class='container'>
+                %s
+                </div>
+                <div class='no-print' style-"text-align: center">
+                    <hr style="margin-top:16px">
+                    <input type="button" onclick="printPage();" value="打印本页"/>
+                </div>
+                <script>
+                    printPage = function(){
+                        $('html').jqprint();
+                    };
+                </script>
+            </body>
+            </html>
+        """ % (self.head, converted)
+
+    def save_html(self, file_path, encoding='utf-8'):
+        """
+        保存 html 文件
+        :param file_path: str html 文件
+        :return: None
+        """
+        with open(file_path, 'w', encoding=encoding) as fp:
+            fp.write(self.html)
