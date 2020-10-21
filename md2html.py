@@ -38,13 +38,15 @@ class Head(object):
     </script>
     """ % js_content
 
-    head = '''
-        <head>
-        <title>{title}</title>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        %s
-        </head>
-    ''' % (style + js)
+    @classmethod
+    def get_head(cls, title):
+        return '''
+            <head>
+            <title>%s</title>
+            <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+            %s
+            </head>
+        ''' % (title, cls.style + cls.js)
 
 
 class MD2Html(Head):
@@ -63,7 +65,7 @@ class MD2Html(Head):
         if code_map is None:
             code_map = CODE_MAP
         self.title = title
-        self.head = self.head.format(title=title)
+        self.head = self.get_head(title)
         self.md_file_path = ''
         if from_str:
             self.md_str = md
