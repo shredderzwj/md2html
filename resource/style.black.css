@@ -3,7 +3,7 @@ body {
     font-family: "Microsoft YaHei", arial, sans-serif;
     color: #bbb;
     line-height: 1;
-    padding: 30px;
+    padding: 15px 0;
     background-color: #2b2b2b;
 }
 
@@ -102,9 +102,9 @@ code {
 pre {
     line-height: 1.7em;
     overflow: auto;
-    padding: 6px 10px;
-    border-left: 5px solid #6CE26C;
-    box-shadow: 0px 0px 6px #8c8c8c inset;
+    padding: 0 10px;
+    margin: 0;
+    border-left: 2px solid #6CE26C;
 }
 
 pre > code {
@@ -119,6 +119,24 @@ pre > code {
     white-space: pre;
     background: 0 0;
 }
+
+.codehilite pre{
+    -moz-border-radius-topleft: 0;
+    -moz-border-radius-bottomleft: 0;
+    box-shadow: -4px 0 4px #8c8c8c inset;
+}
+
+.linenodiv pre{
+    padding: 0 5px 0 12px;
+    border-left: 0;
+    box-shadow: 4px 0 4px #8c8c8c inset;
+}
+
+.linenos, .code{
+    padding: 0;
+    border: 0;
+}
+
 
 aside {
     display: block;
@@ -794,10 +812,18 @@ img, svg {
     background-color: #fff;
 }
 
-@media screen and (min-width: 768px) {
+hr {
+    width: auto;
+}
+
+@media screen and (min-width: 780px) {
     body {
-        width: 748px;
+        width: 780px;
         margin: 10px auto;
+    }
+
+    hr {
+        width: 780px;
     }
 }
 

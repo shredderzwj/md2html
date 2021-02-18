@@ -30,29 +30,32 @@ class Head(object):
         js_content = f.read()
     # js_content = ' '.join([x.strip() for x in js_content.split('\n')])
     js = """
-    <script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-    </script>
     <script src="https://libs.baidu.com/jquery/1.3.1/jquery.min.js"></script>
-    <script>
-    %s
-    </script>
+    <script>%s</script>
     """ % js_content
-
-    @classmethod
-    def get_head(cls, title):
-        return '''
-            <head>
-            <title>%s</title>
-            <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-            %s
-            </head>
-        ''' % (title, cls.style + cls.js)
 
 
 class MD2Html(Head):
+    extensions = [
+        'markdown.extensions.extra',
+        'markdown.extensions.codehilite',
+        'markdown.extensions.tables',
+        'markdown.extensions.toc',
+        'mdx_math',
+        MathExtension(enable_dollar_delimiter=True),
+    ]
+    extension_configs = {
+        'markdown.extensions.codehilite': {
+            'linenums': True
+        },
+    }
+
+
     def __init__(
             self, md=None, title="md2html", from_str=False,
-            encoding='utf-8', code: str = None, code_map: dict = None):
+            encoding='utf-8', code: str = None, code_map: dict = None,
+            mathjax=None,
+    ):
         """
         :param md: str markdown 文件路径或者 markdown 内容。默认为文件路径，
                     当from_str = True 时 md 代表内容
@@ -62,6 +65,9 @@ class MD2Html(Head):
         :param code: str markdown 代码所用的语言，如：java python等
         :param code_map: dict 代码文件的扩展名与代码语言的对照表
         """
+        if mathjax is None:
+            mathjax = '<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>'
+        self.js = self.js + mathjax
         if code_map is None:
             code_map = CODE_MAP
         self.title = title
@@ -92,6 +98,15 @@ class MD2Html(Head):
         self.md_str = re.sub(r'(?<=\n)\s+?(?=```)', '', self.md_str)
         self.md_str = re.sub(r'(?<=\n)\s+?(?=~~~)', '', self.md_str)
 
+    def get_head(self, title):
+        return '''
+            <head>
+            <title>%s</title>
+            <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+            %s
+            </head>
+        ''' % (title, self.style + self.js)
+
     @staticmethod
     def from_file(file_path, encoding):
         with open(file_path, 'r', encoding=encoding) as fp:
@@ -111,17 +126,10 @@ class MD2Html(Head):
         输出转换后的 html 字符串
         :return: str html 内容
         """
-        exts = [
-            'markdown.extensions.extra',
-            'markdown.extensions.codehilite',
-            'markdown.extensions.tables',
-            'markdown.extensions.toc',
-            'mdx_math',
-            MathExtension(enable_dollar_delimiter=True),
-        ]
+
 
         # 转为html的字符串
-        converted = md.markdown(self.md_str, extensions=exts)
+        converted = md.markdown(self.md_str, extensions=self.extensions, extension_configs=self.extension_configs)
 
         # 添加本地图片资源，采用base64编码嵌入
         if self.md_file_path:
