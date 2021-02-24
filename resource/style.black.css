@@ -95,12 +95,13 @@ code, pre {
 }
 
 code {
-    font-family: Consolas, Monaco, Andale Mono, monospace;
     margin: 0 2px;
+    font-family: Consolas, Monaco, Andale Mono, monospace;
 }
 
 pre {
     line-height: 1.7em;
+    font-size: .85em;
     overflow: auto;
     padding: 0 10px;
     margin: 0;
@@ -115,7 +116,6 @@ pre > code {
     margin: 0;
     overflow: initial;
     line-height: inherit;
-    font-size: .85em;
     white-space: pre;
     background: 0 0;
 }

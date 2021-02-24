@@ -127,10 +127,14 @@ class MD2Html(Head):
         :return: str html 内容
         """
 
-
         # 转为html的字符串
         converted = md.markdown(self.md_str, extensions=self.extensions, extension_configs=self.extension_configs)
-
+        try:
+            p = re.search(r'<div class="linenodiv"><pre>((.|\n)*?)</pre>', converted)
+            converted = re.sub(r'<div class="linenodiv"><pre>(.|\n)*?</pre>', '<div class="linenodiv"><pre><code>%s</code></pre>' % ''.join(map(lambda x: '%s<br>' % x, p.groups()[0].split('\n'))), converted)
+            converted = converted.replace('<br></code></pre>', '</code></pre>')
+        except:
+            pass
         # 添加本地图片资源，采用base64编码嵌入
         if self.md_file_path:
             md_file_path_dir = os.path.dirname(self.md_file_path)
